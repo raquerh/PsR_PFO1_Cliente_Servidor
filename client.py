@@ -1,56 +1,43 @@
+# PFO1 - Cliente del chat basico con sockets
+# Programacion sobre Redes - IFTS29
+
 import socket
 
-HOST = "localhost"
+HOST = 'localhost'
 PORT = 5000
 BUFFER_SIZE = 1024
-PALABRA_SALIDA = "salir"
+PALABRA_SALIDA = 'salir'
 
 
-def conectar_al_servidor(host=HOST, port=PORT):
+def conectar_al_servidor():
     try:
         cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cliente_socket.connect((host, port))
-        print(f"[CLIENTE] Conectado al servidor {host}:{port}")
+        cliente_socket.connect((HOST, PORT))
+        print(f"Conectado al servidor {HOST}:{PORT}")
         return cliente_socket
     except ConnectionRefusedError:
-        print(f"[CLIENTE] No se pudo conectar a {host}:{port}. ¿El servidor esta corriendo?")
+        print("No se pudo conectar al servidor. ¿Esta corriendo?")
         return None
 
-
-def enviar_mensajes(cliente_socket):
-    print(f"Escribi tus mensajes. Escribi '{PALABRA_SALIDA}' para cortar la conexión.\n")
-
-    while True:
-        mensaje = input("Vos: ")
-
-        try:
-            cliente_socket.sendall(mensaje.encode("utf-8"))
-        except (BrokenPipeError, ConnectionResetError):
-            print("[CLIENTE] Se perdio la conexión con el servidor.")
-            break
-
-        try:
-            respuesta = cliente_socket.recv(BUFFER_SIZE)
-            if not respuesta:
-                print("[CLIENTE] El servidor cerro la conexión.")
-                break
-            print(f"Servidor: {respuesta.decode('utf-8')}")
-        except (ConnectionResetError, OSError) as error:
-            print(f"[CLIENTE] Error al recibir la respuesta: {error}")
-            break
-
-        if mensaje.strip().lower() == PALABRA_SALIDA:
-            print("[CLIENTE] Cerrando la conexión...")
-            break
 
 def main():
     cliente_socket = conectar_al_servidor()
     if cliente_socket is None:
         return
 
+    print(f"Escribi tus mensajes. Escribi '{PALABRA_SALIDA}' para salir.\n")
+
     with cliente_socket:
-        enviar_mensajes(cliente_socket)
+        while True:
+            mensaje = input('Vos: ')
+            cliente_socket.sendall(mensaje.encode('utf-8'))
+
+            respuesta = cliente_socket.recv(BUFFER_SIZE)
+            print(f"Servidor: {respuesta.decode('utf-8')}")
+
+            if mensaje.strip().lower() == PALABRA_SALIDA:
+                break
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,5 +1,4 @@
 # PsR_PFO1_Cliente_Servidor
-
 Chat básico cliente-servidor en Python con sockets TCP y una base de datos SQLite, para la Practica Formativa Obligatoria 1 de Programacion sobre Redes.
 Tecnicatura superior en desarrollo de software - IFTS29.
 
@@ -30,7 +29,7 @@ Python 3, sin dependencias externas: `socket`, `sqlite3`, `threading` y `datetim
    ```
 3. Escribir mensajes en la terminal del cliente. Escribir `salir` para cortar la conexión.
 
-Se puede abrir más de una terminal con `client.py` en simultáneo; el servidor atiende a cada cliente en un hilo aparte.
+El servidor atiende a un cliente a la vez; si abrís otra terminal con `client.py` mientras la primera sigue conectada, va a quedar esperando hasta que la primera se desconecte.
 
 ## Base de datos
 
@@ -56,4 +55,4 @@ python3 TestMensajesDB.py
 
 ## Notas de implementación
 
-El servidor atiende cada conexión entrante en un hilo (`threading.Thread`) separado, así puede recibir mensajes de varios clientes en simultáneo. Como todos los hilos comparten la misma conexión a la base de datos, el acceso a `mensajes.db` está protegido con un `threading.Lock()` para evitar condiciones de carrera al escribir.
+El servidor atiende un cliente a la vez: recién vuelve a llamar a `accept()` cuando el cliente anterior cierra la conexión.
