@@ -13,12 +13,12 @@ def conectar_al_servidor(host=HOST, port=PORT):
         print(f"[CLIENTE] Conectado al servidor {host}:{port}")
         return cliente_socket
     except ConnectionRefusedError:
-        print(f"[CLIENTE] No se pudo conectar a {host}:{port}. ¿Esta el servidor corriendo?")
+        print(f"[CLIENTE] No se pudo conectar a {host}:{port}. ¿El servidor esta corriendo?")
         return None
 
 
 def enviar_mensajes(cliente_socket):
-    print(f"Escribi tus mensajes. Escribi '{PALABRA_SALIDA}' para cortar la conexion.\n")
+    print(f"Escribi tus mensajes. Escribi '{PALABRA_SALIDA}' para cortar la conexión.\n")
 
     while True:
         mensaje = input("Vos: ")
@@ -26,13 +26,13 @@ def enviar_mensajes(cliente_socket):
         try:
             cliente_socket.sendall(mensaje.encode("utf-8"))
         except (BrokenPipeError, ConnectionResetError):
-            print("[CLIENTE] Se perdio la conexion con el servidor.")
+            print("[CLIENTE] Se perdio la conexión con el servidor.")
             break
 
         try:
             respuesta = cliente_socket.recv(BUFFER_SIZE)
             if not respuesta:
-                print("[CLIENTE] El servidor cerro la conexion.")
+                print("[CLIENTE] El servidor cerro la conexión.")
                 break
             print(f"Servidor: {respuesta.decode('utf-8')}")
         except (ConnectionResetError, OSError) as error:
@@ -40,7 +40,7 @@ def enviar_mensajes(cliente_socket):
             break
 
         if mensaje.strip().lower() == PALABRA_SALIDA:
-            print("[CLIENTE] Cerrando la conexion...")
+            print("[CLIENTE] Cerrando la conexión...")
             break
 
 def main():
