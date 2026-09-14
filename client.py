@@ -6,7 +6,7 @@ import socket
 HOST = 'localhost'
 PORT = 5000
 BUFFER_SIZE = 1024
-PALABRA_SALIDA = 'salir'
+PALABRA_SALIDA = 'éxito'
 
 
 def conectar_al_servidor():
