@@ -45,6 +45,7 @@ def inicializar_db():
 
 
 def guardar_mensaje(conexion_db, contenido, ip_cliente):
+    # Guarda el mensaje en la DB con la fecha y hora actual
     fecha_envio = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor = conexion_db.cursor()
     cursor.execute(
@@ -56,6 +57,7 @@ def guardar_mensaje(conexion_db, contenido, ip_cliente):
 
 
 def recibir_mensajes(conexion_cliente, direccion, conexion_db):
+    # Recibe los mensajes de un cliente hasta que corta la conexion
     ip_cliente = direccion[0]
     print(f"Cliente conectado: {direccion}")
 
@@ -90,6 +92,7 @@ def main():
     try:
         with servidor_socket:
             while True:
+                # Acepta conexiones y recibe los mensajes de cada cliente
                 conexion_cliente, direccion = servidor_socket.accept()
                 recibir_mensajes(conexion_cliente, direccion, conexion_db)
     except KeyboardInterrupt:

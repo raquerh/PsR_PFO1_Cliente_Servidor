@@ -10,6 +10,7 @@ PALABRA_SALIDA = 'éxito'
 
 
 def conectar_al_servidor():
+    # Configuracion del socket TCP/IP y conexion al servidor
     try:
         cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         cliente_socket.connect((HOST, PORT))
@@ -29,6 +30,7 @@ def main():
 
     with cliente_socket:
         while True:
+            # Envia el mensaje y espera la respuesta del servidor
             mensaje = input('Vos: ')
             cliente_socket.sendall(mensaje.encode('utf-8'))
 
