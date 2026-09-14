@@ -1,6 +1,6 @@
 # PsR_PFO1_Cliente_Servidor
 
-Chat básico cliente-servidor en Python con sockets TCP y una base de datos SQLite, para la Practica Formativa Obligatoria 1 de Programacion sobre Redes. Tecnicatura superior en desarrollo de software - IFTS29.
+Chat básico cliente-servidor en Python con sockets TCP y una base de datos SQLite, para la Propuesta Formativa Obligatoria 1 - Programacion sobre Redes Tecnicatura superior en desarrollo de software - IFTS29 - 2026
 
 ## Objetivo
 
