@@ -1,6 +1,6 @@
 # PsR_PFO1_Cliente_Servidor
 
-Chat básico cliente-servidor en Python con sockets TCP y una base de datos SQLite, para la Propuesta Formativa Obligatoria 1 - Programacion sobre Redes Tecnicatura superior en desarrollo de software - IFTS29 - 2026
+Chat básico cliente-servidor en Python con sockets TCP y una base de datos SQLite, para la Propuesta Formativa Obligatoria 1 de Programación sobre Redes. Tecnicatura Superior en Desarrollo de Software, IFTS 29, 2026.
 
 ## Objetivo
 
@@ -8,14 +8,14 @@ Configurar un servidor de sockets que reciba mensajes de clientes, los guarde en
 
 ## Archivos
 
-- `server.py`: servidor TCP que escucha en `localhost:5000`, recibe mensajes y los guarda en SQLite.
+- `server.py`: servidor TCP que escucha en `localhost:5000`, recibe mensajes, los guarda en SQLite y responde con una confirmación.
 - `client.py`: cliente de consola que se conecta al servidor y envía mensajes hasta que el usuario escribe `éxito`.
-- `TestMensajesDB.py`: script chico para revisar el contenido de la base de datos (imprime todas las filas de la tabla `mensajes`).
-- `mensajes.db`: base de datos SQLite (se crea sola la primera vez que se corre el servidor).
+- `TestMensajesDB.py`: script para revisar la base de datos; imprime todas las filas de la tabla `mensajes`.
+- `mensajes.db`: base de datos SQLite. Si no existe, el servidor la crea al iniciar.
 
 ## Requisitos
 
-Python 3, sin dependencias externas: `socket`, `sqlite3`, `threading` y `datetime` son de la librería estándar.
+Python 3. No hace falta instalar nada: `socket`, `sqlite3` y `datetime` son de la librería estándar.
 
 ## Cómo correrlo
 
@@ -27,32 +27,56 @@ Python 3, sin dependencias externas: `socket`, `sqlite3`, `threading` y `datetim
    ```
    python3 client.py
    ```
-3. Escribir mensajes en la terminal del cliente. Escribir `éxito` para cortar la conexión.
+3. Escribir mensajes en la terminal del cliente. Por cada mensaje, el servidor responde `Mensaje recibido: <fecha y hora>`.
+4. Escribir `éxito` para cortar la conexión. Ese último mensaje también se envía y se guarda.
+5. Para apagar el servidor, Ctrl+C en su terminal.
 
-El servidor atiende a un cliente a la vez; si abrís otra terminal con `client.py` mientras la primera sigue conectada, va a quedar esperando hasta que la primera se desconecte.
+## Servidor
+
+`server.py` está dividido en funciones:
+
+- `inicializar_socket()`: crea el socket TCP/IP (`AF_INET`, `SOCK_STREAM`), lo vincula a `localhost:5000` con `bind()` y lo pone a escuchar con `listen()`.
+- `inicializar_db()`: abre `mensajes.db` y crea la tabla `mensajes` si no existe.
+- `guardar_mensaje()`: inserta el mensaje con la fecha y hora actual y la IP del cliente, y devuelve la fecha para usarla en la respuesta.
+- `recibir_mensajes()`: recibe los mensajes de un cliente, los guarda y le responde a cada uno, hasta que el cliente cierra la conexión.
+- `main()`: inicializa la base y el socket, y queda aceptando conexiones con `accept()`.
+
+Los mensajes se reciben de a 1024 bytes y se decodifican como UTF-8.
 
 ## Base de datos
 
-La tabla `mensajes` se crea automáticamente al iniciar el servidor, con los campos:
+La tabla `mensajes` tiene estos campos:
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| id | INTEGER | autoincremental |
+| id | INTEGER | clave primaria autoincremental |
 | contenido | TEXT | texto del mensaje |
-| fecha_envio | TEXT | timestamp en que se guardó |
+| fecha_envio | TEXT | fecha y hora en que se guardó, formato `AAAA-MM-DD HH:MM:SS` |
 | ip_cliente | TEXT | IP de origen del cliente |
 
-Para revisar el contenido, correr:
+El `INSERT` usa parámetros (`?`) en lugar de armar la consulta con el texto del mensaje.
+
+Para revisar el contenido:
 ```
 python3 TestMensajesDB.py
 ```
 
 ## Manejo de errores
 
-- Puerto ocupado al iniciar el socket del servidor.
-- Base de datos no accesible al iniciar SQLite.
-- Desconexión abrupta del cliente durante el envío o la recepción de datos.
+Servidor:
 
-## Notas de implementación
+- Puerto ocupado al iniciar el socket (`OSError`): muestra el error, cierra la base y termina.
+- Base de datos no accesible (`sqlite3.Error`): muestra el error y termina sin levantar el socket.
+- Cierre del cliente: cuando `recv()` devuelve vacío, el servidor cierra esa conexión y vuelve a esperar otro cliente.
+- Ctrl+C (`KeyboardInterrupt`): apaga el servidor y cierra la base.
 
-El servidor atiende un cliente a la vez: recién vuelve a llamar a `accept()` cuando el cliente anterior cierra la conexión.
+Cliente:
+
+- Servidor no disponible (`ConnectionRefusedError`): avisa que no se pudo conectar y termina.
+
+## Limitaciones conocidas
+
+- El servidor atiende un cliente a la vez. Recién vuelve a llamar a `accept()` cuando el cliente anterior cierra la conexión; si se abre otro `client.py` mientras el primero sigue conectado, queda esperando.
+- Si el cliente se cierra de golpe (por ejemplo, cerrando la terminal), `recv()` puede lanzar `ConnectionResetError`. Esa excepción no está capturada, así que el servidor se detiene.
+- Si se envía un mensaje vacío (Enter sin escribir nada), no viaja ningún dato: el cliente queda esperando una respuesta que no llega y la conexión se traba.
+- La palabra de salida no distingue mayúsculas (`éxito`, `Éxito` y `ÉXITO` funcionan igual), pero tiene que llevar tilde.
